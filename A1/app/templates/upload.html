@@ -1,0 +1,17 @@
+<!-- build on base.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- display upload icon -->
+    <div class="imgcontainer">
+        <img src="/static/resource/upload.png" alt="Avatar" class="w3-round-xxlarge">
+    </div>
+
+    <!-- The upload form where the user input an image file -->
+    <form method="POST" enctype="multipart/form-data" action="">
+        <input type="file" id="image" name="image" accept=".jpg,.jpeg,.png" required/>
+        <br>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+{% endblock %}

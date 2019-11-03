@@ -1,0 +1,16 @@
+<!-- build on base.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hi {{username}}, </h1>
+    <h3>Upload new photos or check text detection results on uploaded photos by clicking on their thumbnails below.</h3>
+    <hr>
+    <div>
+        {% for row in result %}
+            <!-- display thumbnails of all images uploaded by current user; info required is passed in through the result variable -->
+            <a href="{{ url_for('display', imname=row[0]+'.'+row[1], cvname=row[0]+'_cv.'+row[1]) }}" > <!-- click on a thumbnail lead to the display page -->
+                  <img src="/static/{{row[0]}}_tn.gif">
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}

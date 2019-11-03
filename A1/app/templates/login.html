@@ -1,0 +1,25 @@
+<!-- build on base.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="POST">
+    <!-- display login icon -->
+    <div class="imgcontainer">
+        <img src="/static/resource/login.png" alt="Avatar" class="w3-round-xxlarge">
+    </div>
+    
+    <!-- The login form where the user input username and password -->
+    <div class="container">
+        <label for="uname"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+    
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+    
+        <button type="submit">Log in</button>
+        No Account yet? Sign up <a href="{{ url_for('signup') }}">here</a>
+    </div>
+    
+</form>
+
+{% endblock %}

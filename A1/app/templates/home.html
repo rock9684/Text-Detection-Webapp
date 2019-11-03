@@ -1,0 +1,21 @@
+<!-- build on base.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Welcome!</h1> 
+    <h2>
+        This is a web application that helps you detect text on images.
+    </h2> 
+    {% if loggedin %} <!-- If user not logged in, provide signup and login links in the intro -->
+    To use, first <a href="{{ url_for('signup') }}">create</a> an account 
+    or <a href="{{ url_for('login') }}">log in</a> to an existing account. 
+    <br>
+    To see text detection result of images, you can either upload new photos or ispect 
+    existing photos by clicking on their thumbnails, which will be displayed on the 
+    <i>My Photos</i> page. 
+    {% else %} <!-- If user logged in, provide upload and myphotos links in the intro -->
+    To see text detection result of images, you can either  <a href="{{ url_for('upload') }}">upload</a> 
+    new photos or ispect existing photos by clicking on their thumbnails, which will 
+    be displayed on the <a href="{{ url_for('myphotos') }}"><i>My Photos</i></a> page. 
+    {% endif %}
+{% endblock %}

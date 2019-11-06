@@ -1,0 +1,16 @@
+<!-- build on base.html -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- place two images side by side -->
+<div class="row">
+    <div class="column">
+        <img class='make-it-fit' src="/static/{{imname}}">
+    </div>
+    <div class="column">
+        <img class='make-it-fit' src="/static/{{cvname}}">
+    </div>
+ </div>
+
+{% endblock %}

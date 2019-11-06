@@ -14,7 +14,7 @@ class Config(object):
     # Variables to configure database
     USERNAME = 'ece1779_hw'
     PASSWORD = 'ece1779_hw_pass'
-    HOSTNAME = 'localhost'
+    HOSTNAME = 'ece1779-db.cr7yempg1jxm.us-east-1.rds.amazonaws.com'
     DATABASE = 'ece1779_hw'
     # Top level folder path
     TOP_FOLDER = dir_path

@@ -5,7 +5,7 @@ import cv2
 
 # generate presigned url to get S3 stuff
 def generate_presigned_url(name):
-    url = s3.generate_presigned_url('get_object',
+    url = s3_client.generate_presigned_url('get_object',
         Params = {
             'Bucket': webapp.config["S3_BUCKET_NAME"],
             'Key': name,

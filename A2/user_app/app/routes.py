@@ -305,7 +305,7 @@ def upload():
         # flash the message to let users know that image uploading is successful
         flash("The new photo is successfully uploaded!")
         # display the original image and the version with text deteced side by side
-        display(imname = imname_base, cvname = cvname_base)
+        return display(imname = imname_base, cvname = cvname_base)
     return render_template('upload.html')
 
 #############

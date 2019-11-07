@@ -1,6 +1,18 @@
 from imutils.object_detection import non_max_suppression
+from app import webapp, s3_client
 import numpy as np
 import cv2
+
+# generate presigned url to get S3 stuff
+def generate_presigned_url(name):
+    url = s3.generate_presigned_url('get_object'
+        Params = {
+            'Bucket': webapp.config["S3_BUCKET_NAME"],
+            'Key': name,
+        },
+        ExpiresIn=3600)
+    return url
+
 def detect_text(topfolder, imname, cvname):
     '''
     Process the user uploaded image for text detection and save the result image into local file system

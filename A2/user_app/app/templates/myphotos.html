@@ -8,8 +8,8 @@
     <div>
         {% for row in result %}
             <!-- display thumbnails of all images uploaded by current user; info required is passed in through the result variable -->
-            <a href="{{ url_for('display', imname=row[0]+'.'+row[1], cvname=row[0]+'_cv.'+row[1]) }}" > <!-- click on a thumbnail lead to the display page -->
-                  <img src="/static/{{row[0]}}_tn.gif">
+            <a href="{{ url_for('display', imname=row[0], cvname=row[1]) }}" > <!-- click on a thumbnail lead to the display page -->
+                  <img src="{{row[2]}}">
             </a>
         {% endfor %}
     </div>

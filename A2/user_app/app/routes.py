@@ -1,6 +1,6 @@
 from app import webapp, db, s3_client
 from app.models import User
-from app.helper import detect_text
+from app.helper import detect_text, generate_presigned_url
 from flask import render_template, request, session, redirect, url_for, jsonify, flash
 import hashlib, uuid
 from flask_login import login_user, logout_user, login_required, current_user
@@ -160,6 +160,20 @@ def myphotos():
         return render_template('error.html')
     result = cur.fetchall()
     cur.close()
+
+    # generate presigned urls to access images in S3
+    presigned_urls = []
+    try:
+        for row in result:
+            imname = row[0] + '.' + row[1]
+            cvname = row[0]+'_cv.'+row[1]
+            tnname = row[0] + '_tn.gif'
+            tn_url = generate_presigned_url(tnname)
+            data = [imname, cvname, tn_url]
+            presigned_urls.append(data)
+    except Exception:
+        return render_template('error.html', error="cannot read images")
+
     # display thumbnails of all images uploaded by the current logged-in user, the details of which is handled in html
     return render_template('myphotos.html', username=current_user.username, result=result)
 
@@ -256,7 +270,7 @@ def upload():
             db.rollback()
             cur.close()
             os.remove(imname)
-            return render_template('error.html', e="Thumbnail creation failed, please re-upload.")
+            return render_template('error.html', error="Thumbnail creation failed, please re-upload.")
 
         # save the image with text detected using opencv
         success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
@@ -265,7 +279,7 @@ def upload():
             cur.close()
             os.remove(imname)
             os.remove(tnname)
-            return render_template('error.html', e="Text detection failed, please re-upload.")
+            return render_template('error.html', error="Text detection failed, please re-upload.")
 
         # upload to s3
         try:
@@ -278,7 +292,7 @@ def upload():
             os.remove(imname)
             os.remove(cvname)
             os.remove(tnname)
-            return render_template('error.html', e="Cannot upload image")
+            return render_template('error.html', error="Cannot upload image")
 
         db.commit()
         cur.close()
@@ -332,7 +346,18 @@ def display(imname=None, cvname=None):
     # check if the photo's owner matches current user
     if (userid == None) or (userid != current_user.userid):
         return render_template('error.html', error='Wrong access! Please display photos by choosing from "My Photos" page.')
-    return render_template('display.html', imname=imname, cvname=cvname)
+
+    presigned_urls = []
+    try:
+        for row in result:
+            im_url = generate_presigned_url(imname)
+            cv_url = generate_presigned_url(cvname)
+            data = [im_url, cv_url]
+            presigned_urls.append(data)
+    except Exception:
+        return render_template('error.html', error="cannot read images")
+    
+    return render_template('display.html', im_url=im_url, cv_url=cv_url)
 
 #########################################################
 #################### API for Testing ####################

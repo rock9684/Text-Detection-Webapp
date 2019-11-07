@@ -18,6 +18,8 @@ class Config(object):
     DATABASE = 'ece1779_hw'
     # Top level folder path
     TOP_FOLDER = dir_path
+    # S3 configuration
+    S3_BUCKET_NAME = 'ece1779-bucket'
     # To display an image on website using Flask, it needs to be placed in this folder
     # As a result, all user uploaded images and their corresponding thumbnails and 
     # OpenCV processed images with text detection will be stored here

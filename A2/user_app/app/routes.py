@@ -1,4 +1,4 @@
-from app import webapp, db
+from app import webapp, db, s3_client
 from app.models import User
 from app.helper import detect_text
 from flask import render_template, request, session, redirect, url_for, jsonify, flash
@@ -240,11 +240,15 @@ def upload():
             return render_template('error.html')
 
         # compose all names
-        imname = webapp.config["SAVE_FOLDER"] + '/' + namebase + '.' + extension
-        tnname = webapp.config["SAVE_FOLDER"] + '/' + namebase + '_tn.gif'
-        cvname = webapp.config["SAVE_FOLDER"] + '/' + namebase + '_cv.' + extension
+        imname_base = namebase + '.' + extension
+        tnname_base = namebase + '_tn.gif'
+        cvname_base = namebase + '_cv.' + extension
+        imname = webapp.config["SAVE_FOLDER"] + '/' + imname_base
+        tnname = webapp.config["SAVE_FOLDER"] + '/' + tnname_base
+        cvname = webapp.config["SAVE_FOLDER"] + '/' + cvname_base
         # save the original image
         file.save(imname)
+
         # save the thumbnail
         cmd_convert = "convert %s -auto-orient -thumbnail '200x200>' -gravity center -extent 200x200 -unsharp 0x.5 %s" % (imname, tnname)
         result_convert = os.system(cmd_convert)
@@ -252,14 +256,32 @@ def upload():
             db.rollback()
             cur.close()
             return render_template('error.html', e="Thumbnail creation failed, please re-upload.")
+
         # save the image with text detected using opencv
         success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
         if not success:
             db.rollback()
             cur.close()
             return render_template('error.html', e="Text detection failed, please re-upload.")
+
+        # upload to s3
+        try:
+            s3_client.upload_file(imname, webapp.config["S3_BUCKET_NAME"], imname_base)
+            s3_client.upload_file(tnname, webapp.config["S3_BUCKET_NAME"], tnname_base)
+            s3_client.upload_file(cvname, webapp.config["S3_BUCKET_NAME"], cvname_base)
+        except Exception:
+            db.rollback()
+            cur.close()
+            return render_template('error.html', e="Cannot upload image")
+
         db.commit()
         cur.close()
+
+        # remove temp files
+        os.remove(imname)
+        os.remove(cvname)
+        os.remove(tnname)
+
         # flash the message to let users know that image uploading is successful
         flash("The new photo is successfully uploaded!")
         # display the original image and the version with text deteced side by side
@@ -425,9 +447,13 @@ def api_upload():
         return jsonify("Database error: cannot update column `count`"), 500
 
     # compose all names
-    imname = webapp.config["SAVE_FOLDER"] + '/' + namebase + '.' + extension
-    tnname = webapp.config["SAVE_FOLDER"] + '/' + namebase + '_tn.gif'
-    cvname = webapp.config["SAVE_FOLDER"] + '/' + namebase + '_cv.' + extension
+    imname_base = namebase + '.' + extension
+    tnname_base = namebase + '_tn.gif'
+    cvname_base = namebase + '_cv.' + extension
+    imname = webapp.config["SAVE_FOLDER"] + '/' + imname_base
+    tnname = webapp.config["SAVE_FOLDER"] + '/' + tnname_base
+    cvname = webapp.config["SAVE_FOLDER"] + '/' + cvname_base
+
     # save the original image
     file.save(imname)
     # save the thumbnail
@@ -443,8 +469,23 @@ def api_upload():
         db.rollback()
         cur.close()
         return jsonify("Text detection failed, please re-upload."), 500
+
+    # upload to s3
+    try:
+        s3_client.upload_file(imname, webapp.config["S3_BUCKET_NAME"], imname_base)
+        s3_client.upload_file(tnname, webapp.config["S3_BUCKET_NAME"], tnname_base)
+        s3_client.upload_file(cvname, webapp.config["S3_BUCKET_NAME"], cvname_base)
+    except Exception:
+        db.rollback()
+        cur.close()
+        return jsonify("Cannot upload image"), 500
+
     db.commit()
     cur.close()
+    # remove temp files
+    os.remove(imname)
+    os.remove(cvname)
+    os.remove(tnname)
     # flash the message to let users know that image uploading is successful
     flash("The new photo is successfully uploaded!")
     # display the original image and the version with text deteced side by side

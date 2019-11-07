@@ -2,6 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from config import Config
 import mysql.connector
+import boto3
 
 # create flask instance
 webapp = Flask(__name__)
@@ -14,6 +15,9 @@ db = mysql.connector.connect(
     password=webapp.config['PASSWORD'],
     host=webapp.config['HOSTNAME'],
     database=webapp.config['DATABASE'])
+
+# s3 client
+s3_client = boto3.client('s3')
 
 # initialize loginManager
 login_manager = LoginManager()

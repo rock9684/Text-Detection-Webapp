@@ -238,7 +238,6 @@ def upload():
             db.rollback()
             cur.close()
             return render_template('error.html')
-        db.commit()
 
         # compose all names
         imname_base = namebase + '.' + extension
@@ -452,7 +451,6 @@ def api_upload():
         cur.close()
         # internal server error
         return jsonify("Database error: cannot insert into `images`"), 500
-    db.commit()
 
     # compose all names
     imname_base = namebase + '.' + extension

@@ -254,17 +254,12 @@ def upload():
         result_convert = os.system(cmd_convert)
         if (result_convert != 0): # if successfully converted, result_convert should have vlaue 0
             db.rollback()
-            db.rollback()
             cur.close()
+            os.remove(imname)
             return render_template('error.html', e="Thumbnail creation failed, please re-upload.")
 
         # save the image with text detected using opencv
         success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
-        if not success:
-            db.rollback()
-            db.rollback()
-            cur.close()
-            return render_template('error.html', e="Text detection failed, please re-upload.")
 
         # upload to s3
         try:
@@ -273,8 +268,10 @@ def upload():
             s3_client.upload_file(cvname, webapp.config["S3_BUCKET_NAME"], cvname_base)
         except Exception:
             db.rollback()
-            db.rollback()
             cur.close()
+            os.remove(imname)
+            os.remove(cvname)
+            os.remove(tnname)
             return render_template('error.html', e="Cannot upload image")
 
         db.commit()
@@ -464,16 +461,11 @@ def api_upload():
     result_convert = os.system(cmd_convert)
     if (result_convert != 0): # if successfully converted, result_convert should have vlaue 0
         db.rollback()
-        db.rollback()
         cur.close()
+        os.remove(imname)
         return jsonify("Error: cannot create a thumnail"), 500
     # save the image with text detected using opencv
     success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
-    if not success:
-        db.rollback()
-        db.rollback()
-        cur.close()
-        return jsonify("Text detection failed, please re-upload."), 500
 
     # upload to s3
     try:
@@ -482,8 +474,10 @@ def api_upload():
         s3_client.upload_file(cvname, webapp.config["S3_BUCKET_NAME"], cvname_base)
     except Exception:
         db.rollback()
-        db.rollback()
         cur.close()
+        os.remove(imname)
+        os.remove(cvname)
+        os.remove(tnname)
         return jsonify("Cannot upload image"), 500
 
     db.commit()

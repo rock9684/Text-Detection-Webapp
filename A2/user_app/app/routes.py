@@ -162,20 +162,20 @@ def myphotos():
     cur.close()
 
     # generate presigned urls to access images in S3
-    presigned_urls = []
+    data = []
     try:
         for row in result:
             imname = row[0] + '.' + row[1]
             cvname = row[0]+'_cv.'+row[1]
             tnname = row[0] + '_tn.gif'
             tn_url = generate_presigned_url(tnname)
-            data = [imname, cvname, tn_url]
-            presigned_urls.append(data)
+            data_row = [imname, cvname, tn_url]
+            data.append(data_row)
     except Exception:
         return render_template('error.html', error="cannot read images")
 
     # display thumbnails of all images uploaded by the current logged-in user, the details of which is handled in html
-    return render_template('myphotos.html', username=current_user.username, result=result)
+    return render_template('myphotos.html', username=current_user.username, result=data)
 
 ############
 ## upload ##

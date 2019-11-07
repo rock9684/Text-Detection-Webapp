@@ -222,14 +222,6 @@ def upload():
         
         # compose the namebase
         namebase = '_'.join([filename, str(current_user.userid), str(count)])
-        # insert new entry (i.e. new image) into the users table
-        try:
-            cur.execute("INSERT INTO images (userid, namebase, extension) VALUES ('%s', '%s', '%s');" % (current_user.userid, namebase, extension))
-        except Exception:
-            db.rollback()
-            cur.close()
-            return render_template('error.html')
-        db.commit()
 
         # if successfully uploadded, update count in users table
         try:
@@ -238,6 +230,15 @@ def upload():
             db.rollback()
             cur.close()
             return render_template('error.html')
+
+        # insert new entry (i.e. new image) into the users table
+        try:
+            cur.execute("INSERT INTO images (userid, namebase, extension) VALUES ('%s', '%s', '%s');" % (current_user.userid, namebase, extension))
+        except Exception:
+            db.rollback()
+            cur.close()
+            return render_template('error.html')
+        db.commit()
 
         # compose all names
         imname_base = namebase + '.' + extension
@@ -260,6 +261,12 @@ def upload():
 
         # save the image with text detected using opencv
         success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
+        if not success:
+            db.rollback()
+            cur.close()
+            os.remove(imname)
+            os.remove(tnname)
+            return render_template('error.html', e="Text detection failed, please re-upload.")
 
         # upload to s3
         try:
@@ -428,6 +435,15 @@ def api_upload():
     
     # compose the namebase
     namebase = '_'.join([filename, str(current_user.userid), str(count)])
+
+    # if successfully uploadded, update count in users table
+    try:
+        cur.execute("UPDATE users SET count = '%d' WHERE userid = '%d';" % (count + 1, current_user.userid))
+    except Exception:
+        db.rollback()
+        cur.close()
+        return jsonify("Database error: cannot update column `count`"), 500
+
     # insert new entry (i.e. new image) into the users table
     try:
         cur.execute("INSERT INTO images (userid, namebase, extension) VALUES ('%s', '%s', '%s');" % (current_user.userid, namebase, extension))
@@ -437,14 +453,6 @@ def api_upload():
         # internal server error
         return jsonify("Database error: cannot insert into `images`"), 500
     db.commit()
-
-    # if successfully uploadded, update count in users table
-    try:
-        cur.execute("UPDATE users SET count = '%d' WHERE userid = '%d';" % (count + 1, current_user.userid))
-    except Exception:
-        db.rollback()
-        cur.close()
-        return jsonify("Database error: cannot update column `count`"), 500
 
     # compose all names
     imname_base = namebase + '.' + extension
@@ -466,6 +474,12 @@ def api_upload():
         return jsonify("Error: cannot create a thumnail"), 500
     # save the image with text detected using opencv
     success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
+    if not success:
+        db.rollback()
+        cur.close()
+        os.remove(imname)
+        os.remove(tnname)
+        return jsonify("Text detection failed, please re-upload."), 500
 
     # upload to s3
     try:

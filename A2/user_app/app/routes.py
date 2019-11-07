@@ -254,12 +254,14 @@ def upload():
         result_convert = os.system(cmd_convert)
         if (result_convert != 0): # if successfully converted, result_convert should have vlaue 0
             db.rollback()
+            db.rollback()
             cur.close()
             return render_template('error.html', e="Thumbnail creation failed, please re-upload.")
 
         # save the image with text detected using opencv
         success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
         if not success:
+            db.rollback()
             db.rollback()
             cur.close()
             return render_template('error.html', e="Text detection failed, please re-upload.")
@@ -270,6 +272,7 @@ def upload():
             s3_client.upload_file(tnname, webapp.config["S3_BUCKET_NAME"], tnname_base)
             s3_client.upload_file(cvname, webapp.config["S3_BUCKET_NAME"], cvname_base)
         except Exception:
+            db.rollback()
             db.rollback()
             cur.close()
             return render_template('error.html', e="Cannot upload image")
@@ -461,11 +464,13 @@ def api_upload():
     result_convert = os.system(cmd_convert)
     if (result_convert != 0): # if successfully converted, result_convert should have vlaue 0
         db.rollback()
+        db.rollback()
         cur.close()
         return jsonify("Error: cannot create a thumnail"), 500
     # save the image with text detected using opencv
     success = detect_text(webapp.config["TOP_FOLDER"], imname, cvname)
     if not success:
+        db.rollback()
         db.rollback()
         cur.close()
         return jsonify("Text detection failed, please re-upload."), 500
@@ -476,6 +481,7 @@ def api_upload():
         s3_client.upload_file(tnname, webapp.config["S3_BUCKET_NAME"], tnname_base)
         s3_client.upload_file(cvname, webapp.config["S3_BUCKET_NAME"], cvname_base)
     except Exception:
+        db.rollback()
         db.rollback()
         cur.close()
         return jsonify("Cannot upload image"), 500

@@ -349,11 +349,10 @@ def display(imname=None, cvname=None):
 
     presigned_urls = []
     try:
-        for row in result:
-            im_url = generate_presigned_url(imname)
-            cv_url = generate_presigned_url(cvname)
-            data = [im_url, cv_url]
-            presigned_urls.append(data)
+        im_url = generate_presigned_url(imname)
+        cv_url = generate_presigned_url(cvname)
+        data = [im_url, cv_url]
+        presigned_urls.append(data)
     except Exception:
         return render_template('error.html', error="cannot read images")
     

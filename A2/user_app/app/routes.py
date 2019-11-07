@@ -171,8 +171,8 @@ def myphotos():
             tn_url = generate_presigned_url(tnname)
             data_row = [imname, cvname, tn_url]
             data.append(data_row)
-    except Exception:
-        return render_template('error.html', error="cannot read images")
+    except Exception as e:
+        return render_template('error.html', error=e)
 
     # display thumbnails of all images uploaded by the current logged-in user, the details of which is handled in html
     return render_template('myphotos.html', username=current_user.username, result=data)

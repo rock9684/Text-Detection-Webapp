@@ -17,7 +17,11 @@ db = mysql.connector.connect(
     database=webapp.config['DATABASE'])
 
 # s3 client
-s3_client = boto3.client('s3')
+s3_client = boto3.client(
+	's3', 
+	aws_access_key_id = webapp.config['ACCESS_KEY_ID'],
+	aws_secret_access_key = webapp.config['SECRET_KEY'],
+	region_name = webapp.config['REGION'])
 
 # initialize loginManager
 login_manager = LoginManager()

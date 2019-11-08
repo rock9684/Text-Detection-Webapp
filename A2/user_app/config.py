@@ -18,6 +18,10 @@ class Config(object):
     DATABASE = 'ece1779_hw'
     # Top level folder path
     TOP_FOLDER = dir_path
+    # aws credentials
+    ACCESS_KEY_ID = 'AKIA5332NEH3HYA6KL2B'
+    SECRET_KEY = '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'
+    REGION = 'us-east-1'
     # S3 configuration
     S3_BUCKET_NAME = 'ece1779-bucket'
     # To display an image on website using Flask, it needs to be placed in this folder

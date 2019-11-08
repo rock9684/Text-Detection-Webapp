@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import timedelta
 import os
+from app import utils
 
 @webapp.before_request
 def make_session_permanent():
@@ -23,6 +24,8 @@ def home():
     '''
     Specify what happens when the home link is accessed
     '''
+
+    utils.record_requests()
     # Message displayed will be slightly different depending on if the user is logged in or not
     if (current_user.is_authenticated):
         return render_template('home.html')
@@ -47,6 +50,8 @@ def signup():
     salt value will be per-user.
     hhash will be the encrypted version of the password user input.
     '''
+
+    utils.record_requests()
     # If user is logged in, access to the login page will direct user to myphotos 
     if (current_user.is_authenticated):
         return redirect(url_for('myphotos'))
@@ -97,6 +102,8 @@ def login():
     If login is successful, the user will be logged in and redirected to the myphotos page.
     If login failed, an error page with proper messages will be redirected to.
     '''
+
+    utils.record_requests()
     # If user is logged in, access to the login page will direct user to myphotos 
     if (current_user.is_authenticated):
         return redirect(url_for('myphotos'))
@@ -134,6 +141,8 @@ def logout():
     Specify what happens when the logout link is accessed.
     Only logged in users can access this link; others will be redirected to the login page.
     '''
+
+    utils.record_requests()
     logout_user()
     # flash a message on website to let users know that they are now logged out. 
     flash("You successfully logged out!")
@@ -150,6 +159,8 @@ def myphotos():
     Specify what happens when the myphotos link is accessed.
     Only logged in users can access this link; others will be redirected to the login page.
     '''
+
+    utils.record_requests()
     # access database
     cur= db.cursor()
     # get info of all images uploaded by the current logged-in user
@@ -202,6 +213,8 @@ def upload():
     Its opencv-processed version path will be:
         webapp.config["SAVE_FOLDER"]/namebase_userid_count_cv.extension
     '''
+
+    utils.record_requests()
     if request.method == 'POST':
         # get info about the user-uploaded image
         try:
@@ -327,6 +340,9 @@ def display(imname=None, cvname=None):
     For 3), user might try to access others photos by guessing the image names to compose the url. 
     We specifically check the owner of the images about to be displayed to prevent this illegal access from happening.
     '''
+
+    utils.record_requests()
+
     # recover namebase and extension from imname
     namebase, extension = imname.rsplit('.', 1)
     # make sure the imname and cvname correspond to each other
@@ -371,6 +387,9 @@ def api_register():
     '''
     API especially for test
     '''
+
+    utils.record_requests()
+
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -412,6 +431,9 @@ def api_upload():
     '''
     API especially for load_generator to test
     '''
+
+    utils.record_requests()
+
     # check user info and login first
     username = request.form.get('username')
     password = request.form.get('password')

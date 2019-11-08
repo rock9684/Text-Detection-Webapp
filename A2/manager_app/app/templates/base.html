@@ -1,0 +1,142 @@
+<style>
+/* Active/current link */
+.navbar a.active {
+  background-color: #666;
+  color: white;
+}
+
+/* Sticky navbar - toggles between relative and fixed, depending on the scroll position. It is positioned relative until a given offset position is met in the viewport - then it "sticks" in place (like position:fixed). The sticky value is not supported in IE or Edge 15 and earlier versions. However, for these versions the navbar will inherit default position */
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+}
+
+/* Style the navigation bar links */
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+}
+
+
+/* Right-aligned link */
+.navbar a.right {
+  float: right;
+}
+
+/* Change color on hover */
+.navbar a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Active/current link */
+.navbar a.active {
+  background-color: #666;
+  color: white;
+}
+
+/* Bordered form */
+form {
+  border: 3px solid #f1f1f1;
+}
+
+/* Full-width inputs */
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Add a hover effect for buttons */
+button:hover {
+  opacity: 0.8;
+}
+
+
+/* Center the avatar image inside this container */
+.imgcontainer {
+  text-align: center;
+  margin: 24px 0 12px 0;
+}
+
+/* Avatar image */
+img.avatar {
+  width: 20%;
+  border-radius: 40%;
+}
+
+/* Add padding to containers */
+.container {
+  padding: 16px;
+}
+
+/* Center the form for uploading image files */
+#image {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  left: calc(50vw - 90px);
+}
+
+/* Center the form for uploading image files */
+* {
+    box-sizing: border-box;
+}
+
+.column {
+    float: left;
+    width: 50%;
+    padding: 5px;
+}
+
+/* Display page show resized full images */
+img.make-it-fit {
+    max-width: 99%;
+    max-height: 99%;
+}
+</style>  
+
+<!-- navbar for user not logged in has links: home, login, signup -->
+<!-- navbar for logged in user has links: home, logout, myphotos and upload -->
+<div class="navbar">
+    <a href="{{ url_for('home') }}">Home</a>
+    &emsp;
+    <a href="{{ url_for('list_workers') }}">Worker List</a> 
+    &emsp;
+    <a href="{{ url_for('elb_dns') }}" target = "_blank">ELB DNS</a> 
+</div>
+<hr>
+
+<!-- flash success messages -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    <hr>
+{% endif %}
+{% endwith %}
+{% block content %}{% endblock %}

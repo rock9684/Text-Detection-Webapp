@@ -388,8 +388,6 @@ def api_register():
     API especially for test
     '''
 
-    utils.record_requests()
-
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -431,8 +429,6 @@ def api_upload():
     '''
     API especially for load_generator to test
     '''
-
-    utils.record_requests()
 
     # check user info and login first
     username = request.form.get('username')

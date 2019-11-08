@@ -23,6 +23,13 @@ s3_client = boto3.client(
 	aws_secret_access_key = webapp.config['SECRET_KEY'],
 	region_name = webapp.config['REGION'])
 
+# cloud watch client
+cw_client = boto3.client(
+	'cloudwatch', 
+	aws_access_key_id = webapp.config['ACCESS_KEY_ID'],
+	aws_secret_access_key = webapp.config['SECRET_KEY'],
+	region_name = webapp.config['REGION'])
+
 # initialize loginManager
 login_manager = LoginManager()
 login_manager.init_app(webapp)

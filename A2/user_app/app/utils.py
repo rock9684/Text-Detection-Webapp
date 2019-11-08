@@ -1,27 +1,20 @@
 import boto3
-from pytz import timezone
 from datetime import datetime
-import config
+from app import webapp, cw_client
 
 def record_requests():
-    # Create CloudWatch client
-
-    # print(config.get_instanceId())
-
-    cloudwatch = boto3.client('cloudwatch')
-
     # Put custom metrics
-    cloudwatch.put_metric_data(
+    cw_client.put_metric_data(
         MetricData=[
             {
                 'MetricName': 'HTTP_request',
                 'Dimensions': [
                     {
                         'Name': 'INSTANCE_ID',
-                        'Value': 'id'
+                        'Value': webapp.config['INSTANCE_ID']
                     },
                 ],
-                'Timestamp': datetime.now(timezone('Canada/Eastern')),
+                'Timestamp': datetime.utcnow(),
                 'Unit': 'Count',
                 'Value': 1.0
             },

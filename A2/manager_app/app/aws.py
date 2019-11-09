@@ -3,6 +3,7 @@ import json
 from math import ceil
 import logging
 from botocore.exceptions import ClientError
+from operator import itemgetter
 import time
 
 class AwsClient:
@@ -64,22 +65,6 @@ class AwsClient:
         except ClientError as e:
             logging.error(e)
             return None
-
-    def get_tag_instances(self):
-        instances = []
-        custom_filter = [{
-            'Name': 'tag:Name',
-            'Values': [self.user_app_tag]}]
-        response = self.ec2.describe_instances(Filters=custom_filter)
-        #instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
-        reservations = response['Reservations']
-        for reservation in reservations:
-            if len(reservation['Instances']) > 0:
-                instances.append({
-                 'Id': reservation['Instances'][0]['InstanceId'],
-                 'State': reservation['Instances'][0]['State']['Name']
-                })
-        return instances
 
     # if the instances in the target group are stopped, then the state is unused,
     # and the instances still stay in the target group.
@@ -266,35 +251,52 @@ class AwsClient:
         return [True, "Success", response_list]
 
 
-    def get_cpu_utils(self, instance_id, start_time, end_time):
+    def get_cpu_utilization(self, instance_id, start_time, end_time, period):
         response = self.cloudwatch.get_metric_statistics(
-            Namespace='AWS/EC2',
-            MetricName='CPUUtilization',
-            Dimensions=[
-                {
-                    'Name': 'InstanceId',
-                    'Value': instance_id
-                },
-            ],
-            StartTime=start_time,
-            EndTime=end_time,
-            Period=60,
-            Statistics=[
-                'Maximum',
-            ],
-            Unit='Percent'
+            Period = period,
+            StartTime = start_time,
+            EndTime = end_time,
+            MetricName = 'CPUUtilization',
+            Namespace = 'AWS/EC2',
+            Statistics = ['Average'],
+            Dimensions = [{'Name': 'InstanceId', 'Value': instance_id}]
         )
-        if 'Datapoints' in response:
-            datapoints = []
-            for datapoint in response['Datapoints']:
-                datapoints.append([
-                    int(datapoint['Timestamp'].timestamp() * 1000),
-                    float(datapoint['Maximum'])
-                ])
-            return json.dumps(sorted(datapoints, key=lambda x: x[0]))
-        else:
-            return json.dumps([[]])
 
+        cpu_stats = []
+
+        if 'Datapoints' in response:
+            for point in response['Datapoints']:
+                hour = point['Timestamp'].hour
+                minute = point['Timestamp'].minute
+                time = hour + minute/60
+                cpu_stats.append([time,point['Average']])
+            cpu_stats = sorted(cpu_stats, key=itemgetter(0))
+
+        return cpu_stats
+
+    def get_http_request_rate(self, instance_id, start_time, end_time, period, unit):
+        response = self.cloudwatch.get_metric_statistics(
+            Period = period,
+            StartTime = start_time,
+            EndTime = end_time,
+            MetricName = 'HTTP_request',
+            Namespace = 'SITE/TRAFFIC', 
+            Statistics = ['Sum'],
+            Dimensions = [{'Name': 'INSTANCE_ID', 'Value': instance_id}],
+            Unit = unit
+        )
+
+        http_stats = []
+
+        if 'Datapoints' in response:
+            for point in response['Datapoints']:
+                hour = point['Timestamp'].hour
+                minute = point['Timestamp'].minute
+                time = hour + minute/60
+                http_stats.append([time,point['Sum']])
+            http_stats = sorted(http_stats, key=itemgetter(0))
+
+        return http_stats
 
     def clear_s3(self):
         for key in self.s3.list_objects(Bucket=self.bk)['Contents']:

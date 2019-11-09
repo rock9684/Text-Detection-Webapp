@@ -3,7 +3,7 @@ from app.helper import generate_presigned_url
 from flask import render_template, request, session, redirect, url_for, jsonify, flash
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
-from datetime import timedelta
+from datetime import datetime, timedelta
 import os
 
 @webapp.route('/', methods=['GET', 'POST'])
@@ -20,3 +20,48 @@ def list_workers():
 def elb_dns():
     elb_dns_url = 'http://' + aws_client.elb_dns
     return redirect(elb_dns_url) 
+
+@webapp.route('/worker_view/<instance_id>', methods=['GET'])
+def worker_view(instance_id):
+	# set time range to be past 30 min
+	# set period to 1 min
+    start_time = datetime.utcnow() - timedelta(seconds = 30 * 60)
+    end_time = datetime.utcnow()
+    period = 60
+
+    cpu_stats = aws_client.get_cpu_utilization(
+    	instance_id = instance_id, 
+    	start_time = start_time,
+    	end_time = end_time,
+    	period = period
+    )
+
+    http_stats = aws_client.get_http_request_rate(
+    	instance_id = instance_id, 
+    	start_time = start_time,
+    	end_time = end_time,
+    	period = period,
+    	unit = 'Count'
+    )
+
+    return jsonify(cpu_stats, http_stats)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -46,6 +46,20 @@ def worker_view(instance_id):
 
     return jsonify(cpu_stats, http_stats)
 
+@webapp.route('/worker_view/grow_by_one', methods=['POST'])
+def grow_by_one():
+	try:
+		response = aws_client.grow_worker_by_one()
+		if int(response) != 200:
+			return redirect(url_for('error'))
+		else:
+			return redirect(url_for('list_workers'))
+	except Exception as e:
+		return redirect(url_for('error'))
+
+@webapp.route('/error', methods=['GET'])
+def error():
+	render_template('error.html')
 
 
 

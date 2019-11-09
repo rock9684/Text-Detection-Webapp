@@ -49,27 +49,16 @@ class AwsClient:
         }
 
     def create_ec2_instance(self):
-        try:
-            response = self.ec2.run_instances(
-                ImageId=self.image_id,
-                InstanceType=self.instance_type,
-                KeyName=self.keypair_name,
-                MinCount=1,
-                MaxCount=1,
-                SecurityGroups=self.security_group,
-                TagSpecifications=self.tag_specification,
-                Monitoring = self.monitoring,
-                Placement = self.tag_placement)
-            return response['Instances'][0]
-
-        except ClientError as e:
-            logging.error(e)
-            return None
+        response = self.ec2.run_instances(
+            MaxCount = 1,
+            MinCount = 1,
+            LaunchTemplate = {'LaunchTemplateId': self.template})
+        return response['Instances'][0]
 
     # if the instances in the target group are stopped, then the state is unused,
     # and the instances still stay in the target group.
     def get_target_instances(self):
-        response = self.elb.describe_target_health(TargetGroupArn = self.target_group_arn,)
+        response = self.elb.describe_target_health(TargetGroupArn = self.target_group_arn)
         instance_list = []
         for instance in response['TargetHealthDescriptions']:
             instance_list.append({
@@ -88,69 +77,27 @@ class AwsClient:
                 target_instances_id.append(item['Id'])
         return target_instances_id
 
-    # we have to make instances in the target group are all running
-    # in order to make sure that the idle instances are outside the target group.
-    def get_idle_instances(self):
-        """
-        return idle instances
-        :return: instances: list
-        """
-        instances_tag_raw = self.get_tag_instances()
-        instances_target_raw = self.get_target_instances()
-        instances_tag =[]
-        instances_target = []
-        for item in instances_tag_raw:
-            instances_tag.append(item['Id'])
-        for item in instances_target_raw:
-            instances_target.append(item['Id'])
-
-        diff_list = []
-        for item in instances_tag:
-            if item not in instances_target:
-                diff_list.append(item)
-        
-        return diff_list
-
-    # cannot get the state of stopped instances
-    def get_specfic_instance_state(self, instance_id):
-        """
-        describe specfic state of an instance 
-        """
-        response = self.ec2.describe_instance_status(InstanceIds=[instance_id])
-        # response['InstanceStatuses'][0]['InstanceState']['Name']
-        return response
-
     def grow_worker_by_one(self):
         """
         add one instance into the self.TargetGroupArn
         :return: msg: str
         register_targets(**kwargs)
         """
-        idle_instances = self.get_idle_instances()
+        response = self.create_ec2_instance()
+        new_instance_id = response['InstanceId']
 
-        new_instance_id = None
-        if idle_instances:
-            new_instance_id = idle_instances[0]
-            # start instance
-            self.ec2.start_instances(
-                InstanceIds=[new_instance_id]
-            )
-        else:
-            response = self.create_ec2_instance()
-            new_instance_id = response['InstanceId']
+        # make sure the new instance is created
+        while True:
+            new_instance_state = self.ec2.describe_instance_status(InstanceIds=[new_instance_id])
+            
+            if len(new_instance_state['InstanceStatuses']) < 1:
+                time.sleep(1)
+            else:
+                break
 
-        specfic_state = self.get_specfic_instance_state(new_instance_id)
-        while len(specfic_state['InstanceStatuses']) < 1:
-            time.sleep(1)
-            specfic_state = self.get_specfic_instance_state(new_instance_id)
-
-        while specfic_state['InstanceStatuses'][0]['InstanceState']['Name'] != 'running':
-            time.sleep(1)
-            specfic_state = self.get_specfic_instance_state(new_instance_id)
-
-        # register if it has finished initializing
-        response = self.elb.register_targets(
-            TargetGroupArn = self.TargetGroupArn,
+        # register it
+        register_response = self.elb.register_targets(
+            TargetGroupArn = self.target_group_arn,
             Targets=[
                 {
                     'Id': new_instance_id,
@@ -159,9 +106,8 @@ class AwsClient:
             ]
         )
 
-        if response and 'ResponseMetadata' in response and \
-                'HTTPStatusCode' in response['ResponseMetadata']:
-            return response['ResponseMetadata']['HTTPStatusCode']
+        if 'ResponseMetadata' in register_response:
+            return register_response['ResponseMetadata']['HTTPStatusCode']
         else:
             return -1
 

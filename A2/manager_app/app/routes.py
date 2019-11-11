@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import datetime, timedelta
 import os
+import time
 
 @webapp.route('/', methods=['GET', 'POST'])
 @webapp.route('/home', methods=['GET', 'POST'])
@@ -56,6 +57,31 @@ def grow_by_one():
 			return redirect(url_for('list_workers'))
 	except Exception as e:
 		return redirect(url_for('error'))
+
+@webapp.route('/list_workers/delete/<instance_id>', methods=['POST'])
+def worker_terminate(instance_id):
+    # terminate an ec2 instance
+    # elb automatically deregister it
+    # 3 seconds for the instance to finish ongoing task
+    time.sleep(3)
+
+    try:
+        aws_client.ec2.terminate_instances(InstanceIds=[instance_id])
+    except Exception:
+        return redirect(url_for('error'))
+
+    return redirect(url_for('list_workers'))
+
+@webapp.route('/shutdown', methods=['POST'])
+def shutdown():
+    try:
+        aws_client.terminate_all_workers()
+    except Exception:
+        return redirect(url_for('error'))
+        
+    func = request.environ.get('werkzeug.server.shutdown')
+    func()
+    return 'SHUTTING DOWN'
 
 @webapp.route('/error', methods=['GET'])
 def error():

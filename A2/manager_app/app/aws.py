@@ -68,21 +68,7 @@ class AwsClient:
                 })
         return instance_list
 
-    # when the state is draining, the instance is actually out of the target group
-    def get_valid_target_instances(self):
-        target_instances = self.get_target_instances()
-        target_instances_id = []
-        for item in target_instances:
-            if item['State'] != 'draining':
-                target_instances_id.append(item['Id'])
-        return target_instances_id
-
     def grow_worker_by_one(self):
-        """
-        add one instance into the self.TargetGroupArn
-        :return: msg: str
-        register_targets(**kwargs)
-        """
         response = self.create_ec2_instance()
         new_instance_id = response['InstanceId']
 
@@ -262,6 +248,17 @@ class AwsClient:
                 # RequestPayer='requester',
                 # BypassGovernanceRetention=True | False
             )
+
+    def terminate_all_workers(self):
+        # terminate all workers
+        target_instances = self.get_target_instances()
+        instance_ids = []
+        for instance in target_instances:
+            instance_ids.append(instance['id'])
+        print(instance_ids)
+        # 3 seconds for all workers to finish ongoing tasks
+        time.sleep(3)
+        self.ec2.terminate_instances(InstanceIds=instance_ids)
 
 if __name__ == '__main__':
     awscli = AwsClient()

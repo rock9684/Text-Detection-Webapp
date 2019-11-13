@@ -2,7 +2,11 @@
 {% block content %}
 
     <form action="{{url_for('grow_by_one')}}" method="post">
-        <input type="submit" value="New">
+        <input type="submit" value="New one">
+    </form>
+
+    <form action="{{url_for('terminate_one_worker')}}" method="post">
+        <input type="submit" value="Delete one">
     </form>
 
     <table />
@@ -17,13 +21,13 @@
             <td>{{ instance.port }}</td>
             <td>{{ instance.state }}</td>
             <td>
-                <form action="{{url_for('home',id=instance.id)}}" method='get'>
+                <form action="{{url_for('worker_view',instance_id=instance.id)}}" method='get'>
                     <input type='submit' value='Details' />
                 </form>
             </td>
          
             <td>
-                <form action="{{url_for('home',id=instance.id)}}" method='post' onsubmit='return confirm("Are you sure?")'>
+                <form action="{{url_for('worker_terminate',instance_id=instance.id)}}" method='post' onsubmit='return confirm("Are you sure?")'>
                     <input type='submit' value='Destroy' />
                 </form>
             </td>

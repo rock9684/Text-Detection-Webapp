@@ -2,19 +2,17 @@
 
 {% block content %}
 
-    <h2>
-You can change autoscaling policy here
+<h2>
+    You can change autoscaling policy here
 </h2>
-
-        <form action="" method="POST">
-        <div class="container">
-        <label for="cpu_grow_threshold"><b>cpu grow threshold (Please input integer between 0 and 100)</b></label>
-        <input type="number" step="1" placeholder="cpu grow threshold" name="cpu_grow_threshold" min="0" max="100" required>
-{#        <input type="number" min="0" step="1" pattern="\d+"/>#}
+<form action="{{url_for('auto_scale_policy')}}" method="POST">
+    <div class="container">
+        <label for="cpu_grow_threshold"><b>cpu grow threshold (Please input integer between 0.1 and 99.9)</b></label>
+        <input type="number" step="0.1" placeholder="cpu grow threshold" name="cpu_grow_threshold" min="0.1" max="99.9" required>
 
         <br>
-        <label for="cpu_shrink_threshold"><b>cpu shrink threshold (Please input integer between 0 and 100)</b></label>
-        <input type="number" step="1" placeholder="cpu shrink threshold" name="cpu_shrink_threshold" min="0" max="100" required>
+        <label for="cpu_shrink_threshold"><b>cpu shrink threshold (Please input integer between 0.1 and 99.9)</b></label>
+        <input type="number" step="0.1" placeholder="cpu shrink threshold" name="cpu_shrink_threshold" min="0.1" max="99.9" required>
 
         <br>
         <label for="grow_ratio"><b>grow ratio (Please input number that is greater than 1)</b></label>
@@ -26,7 +24,8 @@ You can change autoscaling policy here
         <input type="number" placeholder="shrink ratio" name="shrink_ratio" min="1" required>
 
         <br>
-        <button type="button">Update</button>
+        <button type="submit">Update</button>
     </div>
+</form>
 
 {% endblock %}

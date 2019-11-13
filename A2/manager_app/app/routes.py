@@ -11,7 +11,7 @@ import csv
 @webapp.route('/', methods=['GET', 'POST'])
 @webapp.route('/home', methods=['GET', 'POST'])
 def home():
-    return render_template('base.html')
+    return render_template('home.html')
 
 @webapp.route('/list_workers', methods=['GET'])
 def list_workers():
@@ -46,7 +46,7 @@ def worker_view(instance_id):
     	unit = 'Count'
     )
 
-    return jsonify(cpu_stats, http_stats)
+    return render_template('worker_view.html', instance_id = instance_id, cpu_stats = cpu_stats, http_stats = http_stats)
 
 @webapp.route('/worker_view/grow_by_one', methods=['POST'])
 def grow_by_one():
@@ -73,7 +73,21 @@ def worker_terminate(instance_id):
 
     return redirect(url_for('list_workers'))
 
-@webapp.route('/shutdown', methods=['POST'])
+@webapp.route('/list_workers/delete_one', methods=['POST'])
+def terminate_one_worker():
+    # terminate an ec2 instance
+    # elb automatically deregister it
+    # 3 seconds for the instance to finish ongoing task
+    time.sleep(3)
+
+    try:
+        aws_client.shrink_worker_by_one()
+    except Exception:
+        return redirect(url_for('error'))
+
+    return redirect(url_for('list_workers'))
+
+@webapp.route('/shutdown', methods=['POST', 'GET'])
 def shutdown():
 	try:
 		aws_client.terminate_all_workers()
@@ -91,7 +105,7 @@ def shutdown():
 
 	return 'SHUTTING DOWN...'
 
-@webapp.route('/clear', methods=['POST'])
+@webapp.route('/clear', methods=['POST', 'GET'])
 def clear():
 	cur = db.cursor()
 
@@ -113,26 +127,17 @@ def clear():
 @webapp.route('/auto_scale_policy', methods=['GET', 'POST'])
 def auto_scale_policy():
 	if request.method == 'GET':
-		return render_template('base.html')
+		return render_template('autoscale.html')
 	else:
-		cpu_grow_threshold = request.form.get('cpu_grow_threshold')
-		cpu_shrink_threshold = request.form.get('cpu_shrink_threshold')
-		grow_ratio = request.form.get('grow_ratio')
-		shrink_ratio = request.form.get('shrink_ratio')
+		cpu_grow_threshold = float(request.form.get('cpu_grow_threshold'))
+		cpu_shrink_threshold = float(request.form.get('cpu_shrink_threshold'))
+		grow_ratio = float(request.form.get('grow_ratio'))
+		shrink_ratio = float(request.form.get('shrink_ratio'))
 
-		if cpu_grow_threshold >= 100 or cpu_grow_threshold <= 0:
-			flash('Invalid grow threshold')
-			return redirect(url_for('error'))
-		elif cpu_shrink_threshold >= 100 or cpu_shrink_threshold <= 0:
-			flash('Invalid shrink threshold')
-			return redirect(url_for('error'))
-		elif cpu_shrink_threshold >= cpu_grow_threshold:
-			flash('Invalid shrink or grow threshold')
-			return redirect(url_for('error'))
-		elif grow_ratio <= 1 or shrink_ratio <= 1:
-			flash('Invalid shrink or grow ratio')
-			return redirect(url_for('error'))
-
+		if cpu_shrink_threshold > cpu_grow_threshold:
+			flash('Invalid shrink (grow) threshold')
+			return redirect(url_for('auto_scale_policy'))
+		
 		top_folder = webapp.config['TOP_FOLDER']
 		csv_row = [cpu_grow_threshold, cpu_shrink_threshold, grow_ratio, shrink_ratio, 1]
 		

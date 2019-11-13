@@ -3,6 +3,7 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append('../../')
 sys.path.append(dir_path)
+sys.path.append('/home/ubuntu/Desktop/ece1779_lab/A2/manager_app/')
 import time
 from datetime import datetime, timedelta
 from config import Config

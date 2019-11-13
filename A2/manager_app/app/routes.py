@@ -88,12 +88,14 @@ def clear():
 	cur = db.cursor()
 
 	try:
-		cur.execute('SET SQL_SAFE_UPDATES = 0')
-		cur.execute('DELETE FROM images')
-		cur.execute('DELETE FROM users')
-		cur.execute('SET SQL_SAFE_UPDATES = 1')
+		cur.execute("SET SQL_SAFE_UPDATES = 0")
+		cur.execute("DELETE FROM images")
+		cur.execute("SET SQL_SAFE_UPDATES = 0")
+		cur.execute("DELETE FROM users")
+		cur.execute("SET SQL_SAFE_UPDATES = 1")
 		aws_client.s3_clear()
 	except Exception:
+		cur.close()
 		return redirect(url_for('error'))
     
 	db.commit()

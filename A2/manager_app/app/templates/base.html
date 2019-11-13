@@ -1,4 +1,8 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
+
+
 /* Active/current link */
 .navbar a.active {
   background-color: #666;
@@ -125,17 +129,18 @@ img.make-it-fit {
 <!-- navbar for user not logged in has links: home, login, signup -->
 <!-- navbar for logged in user has links: home, logout, myphotos and upload -->
 <div class="navbar">
-    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('home') }}"><i class="fa fa-fw fa-home"></i>Home</a>
     &emsp;
-    <a href="{{ url_for('list_workers') }}">Worker List</a> 
+    <a href="{{ url_for('list_workers') }}"><i class="fa fa-fw fa-user"></i>Worker List</a>
     &emsp;
-    <a href="{{ url_for('elb_dns') }}" target = "_blank">ELB DNS</a>
+    <a href="{{ url_for('elb_dns') }}" ><i class="fa fa-fw fa-cogs"></i>ELB DNS</a>
     &emsp;
-    <a href="{{ url_for('auto_scale_policy') }}" target = "_blank">Auto Scale</a>
+    <a href="{{ url_for('auto_scale_policy') }}" ><i class="fa fa-fw fa-sliders"></i>Auto Scale</>
 
-    <li style="float:right"><a href="{{ url_for('shutdown') }}">Stopping</a></li>
+    <a href="{{ url_for('clear') }} "><i class="fa fa-fw fa-trash"></i></i>Delete</a>
 
-    <li style="float:right"><a href="{{ url_for('clear') }} ">Delete</a></li>
+    <li style="float:right"><a href="{{ url_for('shutdown') }}"><i class="fa fa-fw fa-ban"></i>Stopping</a></li>
+
 </div>
 <hr>
 

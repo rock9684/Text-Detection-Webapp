@@ -126,8 +126,20 @@ def clear():
 
 @webapp.route('/auto_scale_policy', methods=['GET', 'POST'])
 def auto_scale_policy():
+
+
 	if request.method == 'GET':
-		return render_template('autoscale.html')
+
+		try:
+			top_folder = webapp.config['TOP_FOLDER']
+			f = open(top_folder + '/app/auto-scaler/auto_scale.txt', "r")
+			s = f.read()
+			var = s.strip().split(',')
+			f.close()
+		except:
+			var = ['NULL']*4
+
+		return render_template('autoscale.html', variable0=var[0],variable1=var[1],variable2=var[2],variable3=var[3])
 	else:
 		cpu_grow_threshold = float(request.form.get('cpu_grow_threshold'))
 		cpu_shrink_threshold = float(request.form.get('cpu_shrink_threshold'))
@@ -140,7 +152,7 @@ def auto_scale_policy():
 		
 		top_folder = webapp.config['TOP_FOLDER']
 		csv_row = [cpu_grow_threshold, cpu_shrink_threshold, grow_ratio, shrink_ratio, 1]
-		
+
 		with open(top_folder + '/app/auto-scaler/auto_scale.txt', 'w', newline='') as csvfile:
 			writer = csv.writer(csvfile, delimiter = ',')
 			writer.writerow(csv_row)

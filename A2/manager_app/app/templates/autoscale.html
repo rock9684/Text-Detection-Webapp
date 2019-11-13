@@ -1,31 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h2>
+    Current Autoscaling Policy:
+    </h2>
+    <form>
+    <h3>
+    &nbsp &nbsp &nbsp cpu grow threshold: <font color="green">{{variable0}} </font>
+    <br>
+    &nbsp &nbsp cpu shrink threshold: <font color="green">{{variable1}} </font>
+    <br>
+    &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp grow ratio: <font color="green">{{variable2}} </font>
+    <br>
+    &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp shrink ratio: <font color="green">{{variable3}} </font>
+    <br>
+    </h3>
+    </form>
 
 <h2>
     You can change autoscaling policy here
 </h2>
+
 <form action="{{url_for('auto_scale_policy')}}" method="POST">
     <div class="container">
-        <label for="cpu_grow_threshold"><b>cpu grow threshold (Please input integer between 0.1 and 99.9)</b></label>
-        <input type="number" step="0.1" placeholder="cpu grow threshold" name="cpu_grow_threshold" min="0.1" max="99.9" required>
+        <label for="cpu_grow_threshold"><b>&nbsp &nbsp &nbsp &nbsp &nbsp CPU Grow Threshold </b></label>
+        <input type="number" step="0.1" placeholder="cpu grow threshold" name="cpu_grow_threshold" min="0.1" max="99.9" required><b>(0.1 ~ 99.9)</b>
 
         <br>
-        <label for="cpu_shrink_threshold"><b>cpu shrink threshold (Please input integer between 0.1 and 99.9)</b></label>
-        <input type="number" step="0.1" placeholder="cpu shrink threshold" name="cpu_shrink_threshold" min="0.1" max="99.9" required>
+        <label for="cpu_shrink_threshold"><b>&nbsp &nbsp &nbsp &nbsp CPU Shrink Threshold </b></label>
+        <input type="number" step="0.1" placeholder="cpu shrink threshold" name="cpu_shrink_threshold" min="0.1" max="99.9" required><b>(0.1 ~ 99.9)</b>
 
         <br>
-        <label for="grow_ratio"><b>grow ratio (Please input number that is greater than 1)</b></label>
-        <input type="number" step="0.1" placeholder="grow ratio" name="grow_ratio" min="1" required>
+        <label for="grow_ratio"><b>&nbsp&nbspGrow Ratio </b></label>
+        <input type="number" step="0.1" placeholder="grow ratio" name="grow_ratio" min="1" required><b>(input must > 1)</b>
 
 
         <br>
-        <label for="shrink_ratio"><b>shrink ratio (Please input number that is greater than 1)</b></label>
-        <input type="number" step="0.1" placeholder="shrink ratio" name="shrink_ratio" min="1" required>
+        <label for="shrink_ratio"><b>Shrink Ratio </b></label>
+        <input type="number" step="0.1" placeholder="shrink ratio" name="shrink_ratio" min="1" required><b>(input must > 1)</b>
 
         <br>
         <button type="submit">Update</button>
     </div>
 </form>
+
+
 
 {% endblock %}

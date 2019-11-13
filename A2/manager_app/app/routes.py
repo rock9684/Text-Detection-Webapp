@@ -129,17 +129,16 @@ def auto_scale_policy():
 
 
 	if request.method == 'GET':
-
 		try:
 			top_folder = webapp.config['TOP_FOLDER']
-			f = open(top_folder + '/app/auto-scaler/auto_scale.txt', "r")
-			s = f.read()
-			var = s.strip().split(',')
-			f.close()
-		except:
-			var = ['NULL']*4
+			with open(top_folder + '/app/auto-scaler/auto_scale.txt', "r") as csvfile:
+				s = csvfile.read()
+				var = s.strip().split(',')
+		except Exception:
+			var = ['NULL']*5
 
-		return render_template('autoscale.html', variable0=var[0],variable1=var[1],variable2=var[2],variable3=var[3])
+		return render_template('autoscale.html', cpu_grow_threshold=var[0], cpu_shrink_threshold=var[1], 
+			grow_ratio=var[2], shrink_ratio=var[3], enabled=var[4])
 	else:
 		cpu_grow_threshold = float(request.form.get('cpu_grow_threshold'))
 		cpu_shrink_threshold = float(request.form.get('cpu_shrink_threshold'))

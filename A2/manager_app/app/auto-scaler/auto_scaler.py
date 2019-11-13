@@ -120,7 +120,7 @@ if __name__ == '__main__':
         response = auto_scaling(aws_client)
         if response == 'Success':
             # wait for 3 minutes, otherwise unstable
-            logging.info('Grow or shrink successfully, wait for 3 min')
+            logging.info('Grow or shrink successfully, wait for 5 min')
             time.sleep(300)
         else:
             time.sleep(60)

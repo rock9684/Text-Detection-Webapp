@@ -99,10 +99,20 @@ class AwsClient:
         return status_list
             
     def shrink_worker_by_some(self, cut_instance_num):
-        status_list = []
-        for __ in range(cut_instance_num):
-            status_list.append(self.shrink_worker_by_one())
-        return status_list
+        target_instances = self.get_target_instances()
+        instance_ids = []
+        for instance in target_instances:
+            instance_ids.append(instance['id'])
+
+        if len(instance_ids) >= (cut_instance_num + 1):
+            instance_ids_to_cut = []
+            for i in range(cut_instance_num):
+                instance_ids_to_cut.append(instance_ids[i])
+            time.sleep(3)
+            self.ec2.terminate_instances(InstanceIds=instance_ids_to_cut)
+            return None
+
+        return -1
 
 
     def get_cpu_utilization(self, instance_id, start_time, end_time, period):

@@ -1,11 +1,13 @@
 import sys
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append('../../')
+sys.path.append(dir_path)
 import time
 from datetime import datetime, timedelta
 from config import Config
 from app.aws import AwsClient
 import csv
-import os
 import logging
 
 def cpu_utils_avg(aws_client):

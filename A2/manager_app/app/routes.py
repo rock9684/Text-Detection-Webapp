@@ -6,6 +6,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import datetime, timedelta
 import os
 import time
+import csv
 
 @webapp.route('/', methods=['GET', 'POST'])
 @webapp.route('/home', methods=['GET', 'POST'])
@@ -74,14 +75,21 @@ def worker_terminate(instance_id):
 
 @webapp.route('/shutdown', methods=['POST'])
 def shutdown():
-    try:
-        aws_client.terminate_all_workers()
-    except Exception:
-        return redirect(url_for('error'))
-        
-    func = request.environ.get('werkzeug.server.shutdown')
-    func()
-    return 'SHUTTING DOWN'
+	try:
+		aws_client.terminate_all_workers()
+	except Exception:
+		return redirect(url_for('error'))
+
+	top_folder = webapp.config['TOP_FOLDER']
+
+	with open(top_folder + '/app/auto-scaler/auto_scale.txt', 'w', newline='') as csvfile:
+		writer = csv.writer(csvfile, delimiter = ',')
+		writer.writerow([0,0,0,0,0])
+
+	func = request.environ.get('werkzeug.server.shutdown')
+	func()
+
+	return 'SHUTTING DOWN...'
 
 @webapp.route('/clear', methods=['POST'])
 def clear():
@@ -101,6 +109,39 @@ def clear():
 	cur.close()
 
 	return redirect(url_for('home'))
+
+@webapp.route('/auto_scale_policy', methods=['GET', 'POST'])
+def auto_scale_policy():
+	if request.method == 'GET':
+		return render_template('base.html')
+	else:
+		cpu_grow_threshold = request.form.get('cpu_grow_threshold')
+		cpu_shrink_threshold = request.form.get('cpu_shrink_threshold')
+		grow_ratio = request.form.get('grow_ratio')
+		shrink_ratio = request.form.get('shrink_ratio')
+
+		if cpu_grow_threshold >= 100 or cpu_grow_threshold <= 0:
+			flash('Invalid grow threshold')
+			return redirect(url_for('error'))
+		elif cpu_shrink_threshold >= 100 or cpu_shrink_threshold <= 0:
+			flash('Invalid shrink threshold')
+			return redirect(url_for('error'))
+		elif cpu_shrink_threshold >= cpu_grow_threshold:
+			flash('Invalid shrink or grow threshold')
+			return redirect(url_for('error'))
+		elif grow_ratio <= 1 or shrink_ratio <= 1:
+			flash('Invalid shrink or grow ratio')
+			return redirect(url_for('error'))
+
+		top_folder = webapp.config['TOP_FOLDER']
+		csv_row = [cpu_grow_threshold, cpu_shrink_threshold, grow_ratio, shrink_ratio, 1]
+		
+		with open(top_folder + '/app/auto-scaler/auto_scale.txt', 'w', newline='') as csvfile:
+			writer = csv.writer(csvfile, delimiter = ',')
+			writer.writerow(csv_row)
+
+		flash('Policy successfully updated')
+		return redirect(url_for('auto_scale_policy'))
 
 @webapp.route('/error', methods=['GET'])
 def error():

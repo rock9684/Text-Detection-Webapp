@@ -10,11 +10,7 @@ webapp = Flask(__name__)
 webapp.config.from_object(Config)
 
 # configure and connect to database
-db = mysql.connector.connect(
-    user=webapp.config['USERNAME'],
-    password=webapp.config['PASSWORD'],
-    host=webapp.config['HOSTNAME'],
-    database=webapp.config['DATABASE'])
+db = 0
 
 # aws client
 aws_client = aws.AwsClient(

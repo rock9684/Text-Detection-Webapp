@@ -78,90 +78,31 @@ class AwsClient:
         else:
             return -1
 
-    def grow_worker_by_ratio(self, ratio):
-        """
-        add one instance into the self.TargetGroupArn
-        :return: msg: str
-        """
-        target_instances = self.get_valid_target_instances()
-        register_targets_num = int(len(target_instances) * (ratio-1))
-        response_list = []
-        if register_targets_num <= 0:
-            return "Invalid ratio"
-        if len(target_instances) < 1:
-            return "You have no target instance in your group yet."
-
-        for i in range(register_targets_num):
-            response_list.append(self.grow_worker_by_one())
-        return response_list
-
     def shrink_worker_by_one(self):
-        """
-        shrink one instance into the self.TargetGroupArn
-        :return: msg: str
-        """
-        target_instances_id = self.get_valid_target_instances()
-        flag, msg = True, ''
-        if len(target_instances_id) > 1:
-            unregister_instance_id = target_instances_id[0]
+        # terminate one worker
+        target_instances = self.get_target_instances()
+        instance_ids = []
+        for instance in target_instances:
+            instance_ids.append(instance['id'])
+        # 3 seconds for it to finish ongoing tasks
+        time.sleep(3)
+        if len(instance_ids) != 0:
+            self.ec2.terminate_instances(InstanceIds=[instance_ids[0]])
+            return None
 
-            # unregister instance from target group
-            response1 = self.elb.deregister_targets(
-                TargetGroupArn=self.TargetGroupArn,
-                Targets=[
-                    {
-                        'Id': unregister_instance_id
-                    },
-                ]
-            )
-            status1 = -1
-            if response1 and 'ResponseMetadata' in response1 and \
-                    'HTTPStatusCode' in response1['ResponseMetadata']:
-                status1 = response1['ResponseMetadata']['HTTPStatusCode']
+        return -1
 
-            if int(status1) == 200:
-                #stop instance
-                status2 = -1
-                response2 = self.ec2.stop_instances(
-                    InstanceIds=[
-                        unregister_instance_id,
-                    ],
-                    Hibernate=False,
-                    Force=False
-                )
-                if response2 and 'ResponseMetadata' in response2 and \
-                        'HTTPStatusCode' in response2['ResponseMetadata']:
-                    status2 = response2['ResponseMetadata']['HTTPStatusCode']
-                if int(status2) != 200:
-                    flag = False
-                    msg = "Unable to stop the unregistered instance"
-            else:
-                flag = False
-                msg = "Unable to unregister from target group"
-
-        else:
-            flag = False
-            msg = "No workers to unregister"
-
-        return [flag, msg]
+    def grow_worker_by_some(self, new_instance_num):
+        status_list = []
+        for __ in range(new_instance_num):
+            status_list.append(self.grow_worker_by_one())
+        return status_list
             
-    def shrink_worker_by_ratio(self, ratio):
-        """
-        shrink one instance into the self.TargetGroupArn
-        :return: msg: str
-        """
-        target_instances_id = self.get_valid_target_instances()
-        response_list = []
-        if ratio < 1:
-            return [False, "Ratio should be more than 1", response_list]
-        elif len(target_instances_id) < 1:
-            return [False, "Target instance group is already null", response_list]
-        else:
-            shrink_targets_num = len(target_instances_id) - ceil(len(target_instances_id) * round(1/ratio, 2))
-            for i in range(shrink_targets_num):
-                response_list.append(self.shrink_worker_by_one())
-        
-        return [True, "Success", response_list]
+    def shrink_worker_by_some(self, cut_instance_num):
+        status_list = []
+        for __ in range(cut_instance_num):
+            status_list.append(self.shrink_worker_by_one())
+        return status_list
 
 
     def get_cpu_utilization(self, instance_id, start_time, end_time, period):
@@ -226,7 +167,13 @@ class AwsClient:
         instance_ids = []
         for instance in target_instances:
             instance_ids.append(instance['id'])
-        print(instance_ids)
         # 3 seconds for all workers to finish ongoing tasks
         time.sleep(3)
-        self.ec2.terminate_instances(InstanceIds=instance_ids)
+        if len(instance_ids) != 0:
+            self.ec2.terminate_instances(InstanceIds=instance_ids)
+
+
+
+
+
+

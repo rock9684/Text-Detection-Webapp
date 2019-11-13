@@ -83,6 +83,24 @@ def shutdown():
     func()
     return 'SHUTTING DOWN'
 
+@webapp.route('/clear', methods=['POST'])
+def clear():
+	cur = db.cursor()
+
+	try:
+		cur.execute('SET SQL_SAFE_UPDATES = 0')
+		cur.execute('DELETE FROM images')
+		cur.execute('DELETE FROM users')
+		cur.execute('SET SQL_SAFE_UPDATES = 1')
+		aws_client.s3_clear()
+	except Exception:
+		return redirect(url_for('error'))
+    
+	db.commit()
+	cur.close()
+
+	return redirect(url_for('home'))
+
 @webapp.route('/error', methods=['GET'])
 def error():
 	render_template('error.html')

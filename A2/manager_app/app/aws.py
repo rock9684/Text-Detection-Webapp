@@ -25,28 +25,9 @@ class AwsClient:
             aws_secret_access_key = secrete_key,
             region_name = region)
         self.template = template_id
-        self.bk = 'ece1779-images'
+        self.bucket = 'ece1779-bucket'
         self.target_group_arn = target_arn
         self.elb_dns = elb_dns
-        self.user_app_tag = 'user-ece1779-a2'
-        self.image_id = 'ami-07d04e8c9e62bf70c'
-        self.instance_type ='t2.micro'
-        self.keypair_name ='liuweilin17'
-        self.security_group=['launch-wizard-2']
-        self.tag_specification=[{
-            'ResourceType': 'instance',
-            'Tags': [
-                {
-                    'Key': 'Name',
-                    'Value': self.user_app_tag
-                }]
-        }]
-        self.monitoring = {
-            'Enabled': False
-        }
-        self.tag_placement ={
-            'AvailabilityZone': 'us-east-1a'
-        }
 
     def create_ec2_instance(self):
         response = self.ec2.run_instances(
@@ -230,23 +211,11 @@ class AwsClient:
 
         return http_stats
 
-    def clear_s3(self):
-        for key in self.s3.list_objects(Bucket=self.bk)['Contents']:
-            # print(key['Key'])
-            self.s3.delete_objects(
-                Bucket=self.bk,
-                Delete={
-                    'Objects': [
-                        {
-                            'Key': key['Key'],
-                            #'VersionId': 'string'
-                        },
-                    ],
-                    'Quiet': True
-                },
-                # MFA='string',
-                # RequestPayer='requester',
-                # BypassGovernanceRetention=True | False
+    def s3_clear(self):
+        for key in self.s3.list_objects(Bucket=self.bucket)['Contents']:
+            self.s3.delete_object(
+                Bucket = self.bucket,
+                Key = key['Key']
             )
 
     def terminate_all_workers(self):
@@ -259,16 +228,3 @@ class AwsClient:
         # 3 seconds for all workers to finish ongoing tasks
         time.sleep(3)
         self.ec2.terminate_instances(InstanceIds=instance_ids)
-
-if __name__ == '__main__':
-    awscli = AwsClient()
-    # print('grow_worker_by_one {}'.format(awscli.grow_worker_by_one()))
-    # print('get_tag_instances:{}'.format(awscli.get_tag_instances()))
-    # print('get_target_instances:{}'.format(awscli.get_target_instances()))
-    # print('get_idle_instances:{}'.format(awscli.get_idle_instances()))
-    # print('grow_worker_by_one:{}'.format(awscli.grow_worker_by_one()))
-    print('shrink_worker_by_one:{}'.format(awscli.shrink_worker_by_one()))
-    # print('grow_worker_by_ratio:{}'.format(awscli.grow_worker_by_ratio(4)))
-    # print('shrink_worker_by_ratio:{}'.format(awscli.shrink_worker_by_ratio(2)))
-    # print('get_specfic_instance_state:{}'.format(awscli.get_specfic_instance_state('i-05d30395630a679bd')))
-    # print('create_ec2_instances:{}'.format(awscli.create_ec2_instance()))

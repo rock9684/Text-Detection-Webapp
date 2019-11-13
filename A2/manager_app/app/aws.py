@@ -55,9 +55,14 @@ class AwsClient:
 
         # make sure the new instance is created
         while True:
-            new_instance_state = self.ec2.describe_instance_status(InstanceIds=[new_instance_id])
+            try:
+                new_instance_state = self.ec2.describe_instance_status(InstanceIds=[new_instance_id])
+            except Exception:
+                continue
             
             if len(new_instance_state['InstanceStatuses']) < 1:
+                time.sleep(1)
+            elif new_instance_state['InstanceStatuses'][0]['InstanceState']['Name'] != 'running':
                 time.sleep(1)
             else:
                 break

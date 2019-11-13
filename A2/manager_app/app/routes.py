@@ -4,7 +4,7 @@ from flask import render_template, request, session, redirect, url_for, jsonify,
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import datetime, timedelta
-import os
+import os, signal
 import time
 import csv
 
@@ -100,8 +100,8 @@ def shutdown():
 		writer = csv.writer(csvfile, delimiter = ',')
 		writer.writerow([0,0,0,0,0])
 
-	func = request.environ.get('werkzeug.server.shutdown')
-	func()
+	pid = os.getpid()
+	os.kill(pid, signal.SIGTERM)
 
 	return 'SHUTTING DOWN...'
 
@@ -118,10 +118,11 @@ def clear():
 	except Exception:
 		cur.close()
 		return redirect(url_for('error'))
-    
+
 	db.commit()
 	cur.close()
 
+	flash('Everything in RDS and S3 is deleted')
 	return redirect(url_for('home'))
 
 @webapp.route('/auto_scale_policy', methods=['GET', 'POST'])

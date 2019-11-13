@@ -212,11 +212,13 @@ class AwsClient:
         return http_stats
 
     def s3_clear(self):
-        for key in self.s3.list_objects(Bucket=self.bucket)['Contents']:
-            self.s3.delete_object(
-                Bucket = self.bucket,
-                Key = key['Key']
-            )
+        response = self.s3.list_objects(Bucket=self.bucket)
+        if 'Contents' in response:
+            for key in response['Contents']:
+                self.s3.delete_object(
+                    Bucket = self.bucket,
+                    Key = key['Key']
+                    )
 
     def terminate_all_workers(self):
         # terminate all workers

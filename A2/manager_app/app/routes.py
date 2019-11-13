@@ -90,7 +90,6 @@ def clear():
 	try:
 		cur.execute("SET SQL_SAFE_UPDATES = 0")
 		cur.execute("DELETE FROM images")
-		cur.execute("SET SQL_SAFE_UPDATES = 0")
 		cur.execute("DELETE FROM users")
 		cur.execute("SET SQL_SAFE_UPDATES = 1")
 		aws_client.s3_clear()

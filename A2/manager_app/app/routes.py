@@ -4,7 +4,7 @@ from flask import render_template, request, session, redirect, url_for, jsonify,
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import datetime, timedelta
-import os, signal, sys
+import os, signal
 import time
 import csv
 
@@ -100,10 +100,8 @@ def shutdown():
 		writer = csv.writer(csvfile, delimiter = ',')
 		writer.writerow([0,0,0,0,0])
 
-	'''func = request.environ.get('werkzeug.server.shutdown')
-				func()'''
-
-	sys.exit(4)
+	func = request.environ.get('werkzeug.server.shutdown')
+	func()
 
 	return 'SHUTTING DOWN...'
 

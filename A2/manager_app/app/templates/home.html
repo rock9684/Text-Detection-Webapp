@@ -2,20 +2,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Welcome!</h1> 
-    <h2>
-        This is a web application that helps you detect text on images.
-    </h2> 
-    {% if loggedin %} <!-- If user not logged in, provide signup and login links in the intro -->
-    To use, first <a href="{{ url_for('signup') }}">create</a> an account 
-    or <a href="{{ url_for('login') }}">log in</a> to an existing account. 
+    <h1>Welcome! Manager</h1>
+
+<h2>
+This ​app​ is developed for the ​manager to monitor and control the worker pool.
+<br><br>
+To use, you can directly click on their function name in their descriptions or you can click them in the navigation bar.
+</h2>
+
     <br>
-    To see text detection result of images, you can either upload new photos or ispect 
-    existing photos by clicking on their thumbnails, which will be displayed on the 
-    <i>My Photos</i> page. 
-    {% else %} <!-- If user logged in, provide upload and myphotos links in the intro -->
-    To see text detection result of images, you can either  <a href="{{ url_for('upload') }}">upload</a> 
-    new photos or ispect existing photos by clicking on their thumbnails, which will 
-    be displayed on the <a href="{{ url_for('myphotos') }}"><i>My Photos</i></a> page. 
-    {% endif %}
+    You can press <a href="{{ url_for('list_workers') }}">Worker List</a> to monitor and control current working workers
+{#    <br>#}
+{#    You can press  <a href="{{ url_for('autoscale') }}">Stopping</a> to change tuning policy#}
+    <br>
+    <br>
+    Or you can press  <a href="{{ url_for('elb_dns') }}">ELB DNS</a> to ......
+    <br>
+    <br>
+    You can press  <a href="{{ url_for('clear') }}">Delete</a> to delete application data stored on the database
+as well as all images stored on S3.
+    <br>
+    <br>
+    You can press  <a href="{{ url_for('shutdown') }}">Stopping</a> to terminates all the workers and then stops the
+manager itself.
+
+
+    </div>
+
+
+
 {% endblock %}

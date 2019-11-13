@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h2>
+You can change autoscaling policy here
+</h2>
+
+
+        <div class="container">
+        <label for="cpu_grow_threshold"><b>cpu grow threshold (Please input integer between 0 and 100)</b></label>
+        <input type="number" step="1" placeholder="cpu grow threshold" name="cpu_grow_threshold" min="0" max="100" required>
+{#        <input type="number" min="0" step="1" pattern="\d+"/>#}
+
+        <br>
+        <label for="cpu_shrink_threshold"><b>cpu shrink threshold (Please input integer between 0 and 100)</b></label>
+        <input type="number" step="1" placeholder="cpu shrink threshold" name="cpu_shrink_threshold" min="0" max="100" required>
+
+        <br>
+        <label for="grow_ratio"><b>grow ratio (Please input number that is greater than 1)</b></label>
+        <input type="number" placeholder="grow ratio" name="grow_ratio" min="1" required>
+
+
+        <br>
+        <label for="shrink_ratio"><b>shrink ratio (Please input number that is greater than 1)</b></label>
+        <input type="number" placeholder="shrink ratio" name="shrink_ratio" min="1" required>
+
+        <br>
+        <button type="button">Update</button>
+    </div>
+
+{% endblock %}

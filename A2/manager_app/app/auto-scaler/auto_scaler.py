@@ -61,6 +61,7 @@ def auto_scaling(aws_client):
         cpu_avg = cpu_utils_avg(aws_client = aws_client)
         # no valid instances
         logging.info('Avg CPU util is {}'.format(cpu_avg))
+        logging.info('Current worker pool size is {}'.format(pool_size))
         if cpu_avg == -1:
             logging.error('No valid workers in the pool')
             return None
@@ -83,7 +84,6 @@ def auto_scaling(aws_client):
         # shrink
         elif cpu_avg < cpu_shrink_threshold:
             num_to_shrink = int(pool_size) - int(pool_size / shrink_ratio)
-            print(num_to_shrink)
             if int(pool_size) <= pool_size_lower_bound:
                 logging.warning('Pool size cannot be smaller')
                 return None
@@ -115,11 +115,12 @@ if __name__ == '__main__':
         target_arn = Config.TARGET_ARN,
         elb_dns = Config.ELB_DNS)
     # start auto-scaling
+    logging.getLogger().setLevel(logging.INFO)
     while True:
         response = auto_scaling(aws_client)
         if response == 'Success':
             # wait for 3 minutes, otherwise unstable
             logging.info('Grow or shrink successfully, wait for 3 min')
-            time.sleep(180)
+            time.sleep(300)
         else:
             time.sleep(60)

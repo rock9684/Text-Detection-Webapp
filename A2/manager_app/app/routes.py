@@ -101,7 +101,7 @@ def shutdown():
 		writer.writerow([0,0,0,0,0])
 
 	pid = os.getpid()
-	os.kill(pid, signal.SIGTERM)
+	os.kill(pid, signal.SIGINT)
 
 	return 'SHUTTING DOWN...'
 

@@ -100,8 +100,7 @@ def shutdown():
 		writer = csv.writer(csvfile, delimiter = ',')
 		writer.writerow([0,0,0,0,0])
 
-	pid = os.getpid()
-	os.kill(pid, signal.SIGINT)
+	os.system('sudo kill -9 `sudo lsof -t -i:5000`')
 
 	return 'SHUTTING DOWN...'
 

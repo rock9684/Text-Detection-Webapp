@@ -23,7 +23,7 @@ class Config(object):
     SECRET_KEY = 'IginYDKs92FucSJ7Y0h+HZ0iwCVR8AFXMSLZg1yA'
     REGION = 'us-east-1'
     # ec2 config
-    TEMPLATE_ID = 'lt-0f4a77e0d0800410d'
+    TEMPLATE_ID = 'lt-0fb4be9f151145c31'
     TARGET_ARN = 'arn:aws:elasticloadbalancing:us-east-1:953202582006:targetgroup/ece1779-a2-userapp/755a3c96e1177947'
     ELB_DNS = 'ece1779-a2-load-balancer-1175189760.us-east-1.elb.amazonaws.com'
     # S3 configuration

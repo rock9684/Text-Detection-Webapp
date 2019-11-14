@@ -100,8 +100,8 @@ def shutdown():
 		writer = csv.writer(csvfile, delimiter = ',')
 		writer.writerow([0,0,0,0,0])
 
-	func = request.environ.get('werkzeug.server.shutdown')
-	func()
+	pid = os.getpid()
+	os.kill(pid, signal.SIGINT)
 
 	return 'SHUTTING DOWN...'
 

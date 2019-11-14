@@ -5,21 +5,22 @@
     <h1>Welcome! Manager</h1>
 
 <h2>
-This ​app​ is developed for the ​manager to monitor and control the worker pool.
-<br><br>
-To use, you can directly click on their function name in their descriptions or you can click them in the navigation bar.
+This ​app​ is developed for the ​manager to monitor and control the worker pool. To use, you can directly click on their function name in their descriptions or you can click them in the navigation bar.
 </h2>
 
     <br>
-    You can press <a href="{{ url_for('list_workers') }}">Worker List</a> to monitor and control current working workers
-{#    <br>#}
-{#    You can press  <a href="{{ url_for('autoscale') }}">Stopping</a> to change tuning policy#}
+    You can press <a href="{{ url_for('list_workers') }}">Worker List</a> to enter the "Worker List" page. In this page, you can create or destroy instances. You can also monitor some detailed information of instances such as CPU utilization rate and HTTP request rate.
     <br>
     <br>
-    Or you can press  <a href="{{ url_for('elb_dns') }}">ELB DNS</a> to ......
+    You can press  <a href="{{ url_for('auto_scale_policy') }}">Auto Scale</a> to enter auto scale page. This page will
+    first display the current autoscaling policy. Then, users can tuning their desired policy by adjusting the value of CPU grow threshold, CPU shrink threshold, grow ratio and shrink ratio. Then just click “update” button to actually apply the policy.
+
     <br>
     <br>
-    You can press  <a href="{{ url_for('clear') }}">Delete</a> to delete application data stored on the database
+    Or you can press  <a href="{{ url_for('elb_dns') }}">ELB DNS</a> to return to user app directly.
+    <br>
+    <br>
+    You can also press  <a href="{{ url_for('clear') }}">Delete</a> to delete the application data stored on the database.
 as well as all images stored on S3.
     <br>
     <br>

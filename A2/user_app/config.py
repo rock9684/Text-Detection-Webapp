@@ -15,15 +15,15 @@ class Config(object):
     # Limit the size of input files to be no bigger than 10M
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
     # Variables to configure database
-    USERNAME = 'ece1779_hw'
-    PASSWORD = 'ece1779_hw_pass'
-    HOSTNAME = 'ece1779-db.cr7yempg1jxm.us-east-1.rds.amazonaws.com'
-    DATABASE = 'ece1779_hw'
+    USERNAME = ''
+    PASSWORD = ''
+    HOSTNAME = ''
+    DATABASE = ''
     # Top level folder path
     TOP_FOLDER = dir_path
     # aws credentials
-    ACCESS_KEY_ID = 'AKIA5332NEH3HYA6KL2B'
-    SECRET_KEY = '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'
+    ACCESS_KEY_ID = ''
+    SECRET_KEY = ''
     REGION = 'us-east-1'
     # ec2 instance id
     INSTANCE_ID = instance_id

@@ -12,10 +12,10 @@ class Config(object):
     # Limit the size of input files to be no bigger than 10M
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
     # Variables to configure database
-    USERNAME = 'ece1779_hw'
-    PASSWORD = 'ece1779_hw_pass'
-    HOSTNAME = 'localhost'
-    DATABASE = 'ece1779_hw'
+    USERNAME = ''
+    PASSWORD = ''
+    HOSTNAME = ''
+    DATABASE = ''
     # Top level folder path
     TOP_FOLDER = dir_path
     # To display an image on website using Flask, it needs to be placed in this folder
